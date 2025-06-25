@@ -53,7 +53,7 @@ function createMainMenu(){
 function setupUnloadEvent(websocket){
 	window.addEventListener(("beforeunload"),({}) =>{
 		ev = {
-			type = "unload",
+			type: "unload",
 		}
 		websocket.send(JSON.stringify(ev));
 		websocket.close(1000);
