@@ -52,27 +52,30 @@ async def pvp_game(websocket):
     game = None
     connected = None
     color = None
+    players = None
     join_key = secrets.token_urlsafe(12)
     watch_key = secrets.token_urlsafe(12)
     WATCH[watch_key] = game, connected
     if len(GAMES.keys()) == 0:
         game = GameV2.Game()
-        connected = {websocket}
+        players = {websocket}
+        connected = {}
         r = Random()
         color = r.randint(0, 1)
-        GAMES[join_key] = game, connected, not color, False
+        GAMES[join_key] = game,players, connected, not color, False
     else:
         try:
             join_key = get_pvp_game()
-            game,connected,color,unused = GAMES[join_key]
-            connected.add(websocket)
+            game,players,connected,color,unused = GAMES[join_key]
+            players.add(websocket)
             await replay_moves(game, websocket)
         except KeyError:
             game = GameV2.Game()
-            connected = {websocket}
+            players = {websocket}
+            connected = {}
             r = Random()
             color = r.randint(0, 1)
-            GAMES[join_key] = game, connected, not color, False
+            GAMES[join_key] = game,players, connected, not color, False
     try:
         ev = {
             "type": "init",
@@ -87,16 +90,19 @@ async def pvp_game(websocket):
                     "type": "mate",
                     "player": "B" if color else "W"
                 }
-                for socket in connected:
+                for socket in (connected + players):
                     await socket.send(json.dumps(ev))
             if game.turn == color:
                 if event["type"] == "play":
                     if game.play_move(event["move"]):
-                        await play_move(game.moves[len(game.moves) - 1], connected)
-                        await check_game_end(game, connected)
+                        await play_move(game.moves[len(game.moves) - 1], (connected + players))
+                        await check_game_end(game, (connected + players))
     finally:
-        del GAMES[join_key]
-        del WATCH[watch_key]
+        players.remove(websocket)
+        if join_key in GAMES.keys() and len(players) < 2:
+            del GAMES[join_key]
+        if watch_key in WATCH.keys() and len(players) < 2:
+            del WATCH[watch_key]
 
 
 
@@ -104,7 +110,7 @@ async def pvp_game(websocket):
 def get_pvp_game():
     for g in GAMES.keys():
         if not GAMES[g][3]:
-            GAMES[g] = GAMES[g][0], GAMES[g][1], GAMES[g][2], True
+            GAMES[g] = GAMES[g][0],GAMES[g][1], GAMES[g][2], GAMES[g][3], True
             return g
     return None
 
