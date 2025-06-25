@@ -36,12 +36,6 @@ function createMainMenu(){
 	new_game_div.append(new_game_button);
 	menu_grid.append(new_game_div);
 	
-	let new_bot_game_div = newDiv("new_game_button_div");
-	let new_bot_game_button = create_a_element("new_game_button", '/CRONChess/?do=pvb',"New Bot Game");
-	new_bot_game_div.append(new_bot_game_button);
-	menu_grid.append(new_bot_game_div);
-	
-	
 	let new_join_game_div = newDiv("new_game_button_div");
 	let new_join_game_button = create_a_element("new_game_button", '/CRONChess/?do=pvj',"New Joinable Game");
 	new_join_game_div.append(new_join_game_button);
