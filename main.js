@@ -50,6 +50,15 @@ function createMainMenu(){
 	b.append(menu_grid);
 }
 
+function setupUnloadEvent(websocket){
+	window.addEventListener(("beforeunload"),({}) =>{
+		ev = {
+			type = "unload",
+		}
+		websocket.send(JSON.stringify(ev));
+		websocket.close(1000);
+	});
+}
 
 function createGame(){
 	let b = document.querySelector(".body");
@@ -64,6 +73,7 @@ function createGame(){
 	startGame(websocket);
 	setupReceiveEvent(board, websocket);
 	setupPlayEvent(board, websocket);
+	setupUnloadEvent(websocket);
 	const promotion_selector = document.querySelector(".promotion_selector");
 	setupPromotionSelector(promotion_selector);
 }
@@ -80,6 +90,27 @@ function newDiv(className){
 	let div = document.createElement("div");
 	div.className = className;
 	return div;
+}
+
+function onStalemate (winner, websocket){
+	websocket.close(1000);
+	let b = document.querySelector(".body");
+	//end text box creation
+	let end_text_box = newDiv("after_game_actions");
+	let end_text = newDiv("action white_piece");
+	end_text.innerText = "Stalemate!";
+	end_text_box.append(end_text);
+	//new game button creation
+	let new_game_div = newDiv("action");
+	let new_game_button = create_a_element("new",`/CRONChess/?do=${(game_type == "jvp"?"pvj":game_type)}`,"New Game");
+	new_game_div.append(new_game_button);
+	end_text_box.append(new_game_div);
+	//main menu button creation
+	let main_menu_div = newDiv("action");
+	let main_menu_button = create_a_element("new",`/CRONChess/`,"Main Menu");
+	main_menu_div.append(main_menu_button);
+	end_text_box.append(main_menu_div);
+	b.append(end_text_box);
 }
 
 function onWin (winner, websocket){
@@ -182,6 +213,11 @@ function setupReceiveEvent(board, websocket){
 			case "error":
 				window.setTimeout(() => window.alert(ev.message), 50);
 				websocket.close(1000);
+				break;
+			case "stalemate":
+				onStalemate();
+				break;
+				
 		}
 	});
 }

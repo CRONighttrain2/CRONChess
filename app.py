@@ -29,6 +29,13 @@ async def bot_game(websocket):
         bot = GameV2.Bot_V1()
         async for message in websocket:
             event = json.loads(message)
+            if event["type"] == "unload":
+                ev = {
+                    "type": "mate",
+                    "player": "W"
+                }
+                for socket in connected:
+                    await socket.send(json.dumps(ev))
             if game.turn:
                 if event["type"] == "play":
                     if game.play_move(event["move"]):
@@ -75,6 +82,13 @@ async def pvp_game(websocket):
         await websocket.send(json.dumps(ev))
         async for message in websocket:
             event = json.loads(message)
+            if event["type"] == "unload":
+                ev = {
+                    "type": "mate",
+                    "player": "B" if color else "W"
+                }
+                for socket in connected:
+                    await socket.send(json.dumps(ev))
             if game.turn == color:
                 if event["type"] == "play":
                     if game.play_move(event["move"]):
@@ -114,6 +128,13 @@ async def joinable_game(websocket):
         await websocket.send(json.dumps(ev))
         async for message in websocket:
             event = json.loads(message)
+            if event["type"] == "unload":
+                ev = {
+                    "type": "mate",
+                    "player": "B" if color else "W"
+                }
+                for socket in connected:
+                    await socket.send(json.dumps(ev))
             if game.turn == color:
                 if event["type"] == "play":
                     if game.play_move(event["move"]):
@@ -150,6 +171,13 @@ async def join_game(websocket, join_key):
         await replay_moves(game, websocket)
         async for message in websocket:
             event = json.loads(message)
+            if event["type"] == "unload":
+                ev = {
+                    "type": "mate",
+                    "player": "B" if game.turn else "W"
+                }
+                for socket in connected:
+                    await socket.send(json.dumps(ev))
             if game.turn == color:
                 if event["type"] == "play":
                     if game.play_move(event["move"]):
@@ -170,10 +198,17 @@ async def check_game_end(game, connected):
     if game.check_checkmate():
         ev = {
             "type": "mate",
-            "player": "B" if game.turn else "W"
+            "player": "B" if game.turn else "W",
         }
         for socket in connected:
             await socket.send(json.dumps(ev))
+    elif game.check_stalemate():
+        ev = {
+            "type": "stalemate",
+        }
+        for socket in connected:
+            await socket.send(json.dumps(ev))
+
 
 async def watch_game(websocket, watch_key):
     connected: set = None
