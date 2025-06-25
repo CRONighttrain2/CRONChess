@@ -1,0 +1,120 @@
+.moves_display{
+	display:grid;
+	width: 220px;
+	height: 480px;
+  overflow-y: scroll;
+	grid-template-columns:auto auto auto;
+	float: left;
+	border-style: solid; 
+	align-content: start;
+	background-color:white;
+}
+
+.new_game_button_div{
+	text-align: center;
+	font-size: 100px;
+}
+
+.join_div{
+	width:300px;
+	text-align: center;
+	font-size: 60px;
+	background-color:white;
+}
+
+.main_menu_grid{
+	display:grid;
+	grid-template-columns:auto;
+	border-style: solid;
+}
+
+.after_game_actions{
+	display:grid;
+	grid-template-columns:auto;
+	border-style: solid;
+  border-radius: 10px;
+}
+
+.action{
+	width: 240px;
+	font-size: 40px;
+	text-align: center;
+}
+
+.black_move{
+	color:white;
+}
+.move_number_square{
+	width:60px;
+	height:40px;
+	font-size:25px;
+	text-align: center;
+	border-right-style: solid;
+}
+
+.move_display_square{
+	width:70px;
+	height:40px;
+	font-size:25px;
+	text-align: center;
+}
+
+.body{
+	background-color:black;
+}
+
+.board{
+	float:left;
+	display: grid;
+	width: 480px;
+	grid-template-columns: auto auto auto auto auto auto auto auto;
+	border-style: solid; 
+}
+.tile{
+	width: 60px;
+	height: 60px;
+	font-size: 50px;
+	text-align: center;
+}
+
+.black{
+	background-color: #a26f00;
+}
+
+.white{
+	background-color: white;
+}
+
+.white_piece{
+	-webkit-text-fill-color: white;
+	-webkit-text-stroke: 0.5px black;
+}
+
+.black_piece{
+	-webkit-text-fill-color: black;
+	-webkit-text-stroke: 0.5px white;
+}
+
+.promotion_selector{
+	display: grid;
+  grid-template-columns: auto auto auto auto;
+	width: 120px;
+}
+
+.promotion_square{
+	width: 40px;
+	height: 40px;
+	font-size: 30px;
+	background-color: #919191;
+	border-style: solid;
+	text-align: center; 
+}
+
+.promotion_select{
+	width: 40px;
+	height: 40px;
+	font-size: 30px;
+	border-style: solid; 
+	text-align: center;
+	background-color:white;
+}
