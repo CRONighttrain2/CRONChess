@@ -32,18 +32,18 @@ function createMainMenu(){
 	let menu_grid = newDiv("main_menu_grid");
 	
 	let new_game_div = newDiv("new_game_button_div");
-	let new_game_button = create_a_element("new_game_button", '/?do=pvp',"New PVP Game");
+	let new_game_button = create_a_element("new_game_button", '/CRONChess/?do=pvp',"New PVP Game");
 	new_game_div.append(new_game_button);
 	menu_grid.append(new_game_div);
 	
 	let new_bot_game_div = newDiv("new_game_button_div");
-	let new_bot_game_button = create_a_element("new_game_button", '/?do=pvb',"New Bot Game");
+	let new_bot_game_button = create_a_element("new_game_button", '/CRONChess/?do=pvb',"New Bot Game");
 	new_bot_game_div.append(new_bot_game_button);
 	menu_grid.append(new_bot_game_div);
 	
 	
 	let new_join_game_div = newDiv("new_game_button_div");
-	let new_join_game_button = create_a_element("new_game_button", '/?do=pvj',"New Joinable Game");
+	let new_join_game_button = create_a_element("new_game_button", '/CRONChess/?do=pvj',"New Joinable Game");
 	new_join_game_div.append(new_join_game_button);
 	menu_grid.append(new_join_game_div);
 	
@@ -59,7 +59,7 @@ function createGame(){
 	b.append(moves_display_div);
 	let promotion_selector_div = newDiv("promotion_selector");
 	b.append(promotion_selector_div);
-	const websocket = new WebSocket("ws://localhost:8001/");
+	const websocket = getWebSocketServer();
 	const board = document.querySelector(".board");
 	startGame(websocket);
 	setupReceiveEvent(board, websocket);
@@ -92,12 +92,12 @@ function onWin (winner, websocket){
 	end_text_box.append(end_text);
 	//new game button creation
 	let new_game_div = newDiv("action");
-	let new_game_button = create_a_element("new",`/?do=${(game_type == "jvp"?"pvj":game_type)}`,"New Game");
+	let new_game_button = create_a_element("new",`/CRONChess/?do=${(game_type == "jvp"?"pvj":game_type)}`,"New Game");
 	new_game_div.append(new_game_button);
 	end_text_box.append(new_game_div);
 	//main menu button creation
 	let main_menu_div = newDiv("action");
-	let main_menu_button = create_a_element("new",`/`,"Main Menu");
+	let main_menu_button = create_a_element("new",`/CRONChess/`,"Main Menu");
 	main_menu_div.append(main_menu_button);
 	end_text_box.append(main_menu_div);
 	b.append(end_text_box);
@@ -167,14 +167,14 @@ function setupReceiveEvent(board, websocket){
 				if (ev.join != undefined){
 					let b = document.querySelector(".body");
 					let join_div = newDiv("join_div");
-					let join_link = create_a_element("join_link",`/?do=jvp&join=${ev.join}`,"Join link")
+					let join_link = create_a_element("join_link",`/CRONChess/?do=jvp&join=${ev.join}`,"Join link")
 					join_div.append(join_link);
 					b.append(join_div);
 				}
 				if (ev.watch != undefined){
 					let b = document.querySelector(".body");
 					let watch_div = newDiv("join_div");
-					let watch_link = create_a_element("join_link",`/?do=watch&watch=${ev.watch}`,"Watch link")
+					let watch_link = create_a_element("join_link",`/CRONChess/?do=watch&watch=${ev.watch}`,"Watch link")
 					watch_div.append(watch_link);
 					b.append(watch_div);
 				}
