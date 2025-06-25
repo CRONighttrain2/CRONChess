@@ -104,9 +104,6 @@ async def pvp_game(websocket):
         if watch_key in WATCH.keys() and len(players) < 2:
             del WATCH[watch_key]
 
-
-
-
 def get_pvp_game():
     for g in GAMES.keys():
         if not GAMES[g][3]:
