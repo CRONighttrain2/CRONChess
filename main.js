@@ -59,7 +59,7 @@ function createGame(){
 	b.append(moves_display_div);
 	let promotion_selector_div = newDiv("promotion_selector");
 	b.append(promotion_selector_div);
-	const websocket = getWebSocketServer();
+	const websocket = new WebSocket(getWebSocketServer());
 	const board = document.querySelector(".board");
 	startGame(websocket);
 	setupReceiveEvent(board, websocket);
