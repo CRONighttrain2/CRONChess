@@ -100,7 +100,7 @@ async def pvp_game(websocket):
 
 def get_pvp_game():
     for g in GAMES.keys():
-        if not GAMES[g][3]:
+        if not GAMES[g][4]:
             GAMES[g] = GAMES[g][0],GAMES[g][1], GAMES[g][2], GAMES[g][3], True
             return g
     return None
