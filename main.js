@@ -4,6 +4,16 @@ let move_number = 0;
 let game_type = "";
 let color = "";
 
+function getWebSocketServer() {
+  if (window.location.host === "cronighttrain2.github.io") {
+    return "wss://open-caitlin-cronight-56ae1cd5.koyeb.app/";
+  } else if (window.location.host === "localhost:8000") {
+    return "ws://localhost:8001/";
+  } else {
+    throw new Error(`Unsupported host: ${window.location.host}`);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const linkElement = document.createElement("link");
   linkElement.href = import.meta.url.replace(".js", ".css");
