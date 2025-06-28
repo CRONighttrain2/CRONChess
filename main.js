@@ -10,11 +10,6 @@ const indexToBoardCoordinates = (index) =>{return "abcdefghijklmnopqrstuvwxyzABC
 const boardCoordinatesToIndex = (coordinate) => {return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@".indexOf(coordinate);}
 const indexColumn = (index) =>{return index % 8;}
 const indexRow = (index) => {return Math.floor(index/8);}
-const createPromotionSelectorSquare = (piece) =>{
-		let selector_element = createDiv("promotion_square" + (color == "W"?" white_piece":" black_piece"));
-		selector_element.innerText = piece;
-		promotion_selector.append(selector_element);
-}
 const createDiv = (className)=>{
 	let div = document.createElement("div");
 	div.className = className;
@@ -107,7 +102,12 @@ function onWin (winner, websocket){
 
 function setupPromotionSelector(promotion_selector){
 	const promotion_pieces = ["♛", "♞", "♜", "♝"];
-	promotion_pieces.forEach(createPromotionSelectorSquare)
+	for(let index = 0; index < promotion_pieces.length; index++){
+		let selector_element = document.createElement("div");
+		selector_element.innerText = promotion_pieces[index];
+		selector_element.className = (index == 0? "promotion_select": "promotion_square") + " white_piece"
+		promotion_selector.append(selector_element);
+	}
 	promotion_selector.addEventListener("click", ({target}) => {
 		let piece = target.innerText;
 		if (piece == undefined || piece == promotion_piece){return;}
