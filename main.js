@@ -30,7 +30,7 @@ const createAElement = (className, divClassName ,href,innerText) =>{
 	return new_div;
 }
 
-const createEndOfGameActions = (b, end_text) =>{
+const createEndOfGameActions = (end_text) =>{
 	let b = document.querySelector(".body");
 	//end text box creation
 	let end_text_box = createDiv("after_game_actions");
