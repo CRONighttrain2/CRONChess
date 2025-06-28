@@ -3,6 +3,47 @@ let promotion_piece = "♛";
 let move_number = 0;
 let game_type = "";
 let color = "";
+//helper functons
+const getTile = (coord) => {return document.querySelector(`[data-index="${coord}"]`);}
+const getElement = (elemClass) => {return document.querySelector(`.${elemClass}`);}
+const indexToBoardCoordinates = (index) =>{return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@".at(index);}
+const boardCoordinatesToIndex = (coordinate) => {return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@".indexOf(coordinate);}
+const indexColumn = (index) =>{return index % 8;}
+const indexRow = (index) => {return Math.floor(index/8);}
+const createPromotionSelectorSquare = (piece) =>{
+		let selector_element = createDiv("promotion_square" + (color == "W"?" white_piece":" black_piece"));
+		selector_element.innerText = promotion_pieces[piece];
+		promotion_selector.append(selector_element);
+}
+const createDiv = (className)=>{
+	let div = document.createElement("div");
+	div.className = className;
+	return div;
+}
+const createAElement = (className, divClassName ,href,innerText) =>{
+	let new_div = createDiv(divClassName);
+	let a_element = document.createElement("a");
+	a_element.className = className;
+	a_element.href = href;
+	a_element.innerText = innerText;
+	new_div.append(a_element);
+	return new_div;
+}
+
+const createEndOfGameActions = (b, end_text) =>{
+	let b = document.querySelector(".body");
+	//end text box creation
+	let end_text_box = createDiv("after_game_actions");
+	let end_text_div = createDiv("action white_piece");
+	end_text_div.innerText = end_text;
+	end_text_box.append(end_text_div);
+	//new game button creation
+	end_text_box.append(createAElement("new", "action",`/CRONChess/?do=${(game_type == "jvp"?"pvj":game_type)}`,"New Game"));
+	//main menu button creation
+	end_text_box.append(createAElement("new","action", `/CRONChess/`,"Main Menu"));
+	b.append(end_text_box);
+
+} 
 
 function getWebSocketServer() {
   if (window.location.host === "cronighttrain2.github.io") {
@@ -29,151 +70,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function createMainMenu(){
 	let b = document.querySelector(".body");
-	let menu_grid = newDiv("main_menu_grid");
-	
-	let new_game_div = newDiv("new_game_button_div");
-	let new_game_button = create_a_element("new_game_button", '/CRONChess/?do=pvp',"New PVP Game");
-	new_game_div.append(new_game_button);
-	menu_grid.append(new_game_div);
-	
-	let new_join_game_div = newDiv("new_game_button_div");
-	let new_join_game_button = create_a_element("new_game_button", '/CRONChess/?do=pvj',"New Joinable Game");
-	new_join_game_div.append(new_join_game_button);
-	menu_grid.append(new_join_game_div);
-	
+	let menu_grid = createDiv("main_menu_grid");
+	let new_game_button = createAElement("new_game_button", "new_game_button_div", '/CRONChess/?do=pvp',"New PVP Game");
+	let new_join_game_button = createAElement("new_game_button", "new_game_button_div", '/CRONChess/?do=pvj',"New Joinable Game");
+	menu_grid.append(new_game_button);
+	menu_grid.append(new_join_game_button);
 	b.append(menu_grid);
-}
-
-function setupUnloadEvent(websocket){
-	window.addEventListener(("beforeunload"),({}) =>{
-		ev = {
-			type: "unload",
-		}
-		websocket.send(JSON.stringify(ev));
-		websocket.close(1000);
-	});
 }
 
 function createGame(){
 	let b = document.querySelector(".body");
-	let board_div = newDiv("board");
+	let board_div = createDiv("board");
 	b.append(board_div);
-	let moves_display_div = newDiv("moves_display");
+	let moves_display_div = createDiv("moves_display");
 	b.append(moves_display_div);
-	let promotion_selector_div = newDiv("promotion_selector");
-	b.append(promotion_selector_div);
 	const websocket = new WebSocket(getWebSocketServer());
-	const board = document.querySelector(".board");
+	const board = getElement("board");
 	startGame(websocket);
 	setupReceiveEvent(board, websocket);
 	setupPlayEvent(board, websocket);
-	setupUnloadEvent(websocket);
-	const promotion_selector = document.querySelector(".promotion_selector");
+	let promotion_selector_div = createDiv("promotion_selector");
+	b.append(promotion_selector_div);
+	const promotion_selector = getElement("promotion_selector");
 	setupPromotionSelector(promotion_selector);
 }
 
-function create_a_element(className,href,innerText){
-	let a_element = document.createElement("a");
-	a_element.className = className;
-	a_element.href = href;
-	a_element.innerText = innerText;
-	return a_element;
-}
-
-function newDiv(className){
-	let div = document.createElement("div");
-	div.className = className;
-	return div;
-}
-
-function onStalemate (winner, websocket){
+function onStalemate (websocket){
 	websocket.close(1000);
-	let b = document.querySelector(".body");
-	//end text box creation
-	let end_text_box = newDiv("after_game_actions");
-	let end_text = newDiv("action white_piece");
-	end_text.innerText = "Stalemate!";
-	end_text_box.append(end_text);
-	//new game button creation
-	let new_game_div = newDiv("action");
-	let new_game_button = create_a_element("new",`/CRONChess/?do=${(game_type == "jvp"?"pvj":game_type)}`,"New Game");
-	new_game_div.append(new_game_button);
-	end_text_box.append(new_game_div);
-	//main menu button creation
-	let main_menu_div = newDiv("action");
-	let main_menu_button = create_a_element("new",`/CRONChess/`,"Main Menu");
-	main_menu_div.append(main_menu_button);
-	end_text_box.append(main_menu_div);
-	b.append(end_text_box);
+	createEndOfGameActions(b, `Stalemate!`);
 }
 
 function onWin (winner, websocket){
 	websocket.close(1000);
-	let b = document.querySelector(".body");
-	//end text box creation
-	let end_text_box = newDiv("after_game_actions");
-	let end_text = newDiv("action white_piece");
-	end_text.innerText = (winner == "W"?"White":"Black") + " Wins!";
-	end_text_box.append(end_text);
-	//new game button creation
-	let new_game_div = newDiv("action");
-	let new_game_button = create_a_element("new",`/CRONChess/?do=${(game_type == "jvp"?"pvj":game_type)}`,"New Game");
-	new_game_div.append(new_game_button);
-	end_text_box.append(new_game_div);
-	//main menu button creation
-	let main_menu_div = newDiv("action");
-	let main_menu_button = create_a_element("new",`/CRONChess/`,"Main Menu");
-	main_menu_div.append(main_menu_button);
-	end_text_box.append(main_menu_div);
-	b.append(end_text_box);
-}
-
-function indexToBoardCoordinates(index){
-	return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@".at(index);
-}
-
-function boardCoordinatesToIndex(coordinate){
-	return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@".indexOf(coordinate);
-}
-
-function indexColumn(index){
-	return index % 8;
-}
-
-function indexRow(index){
-	return Math.floor(index/8);
+	createEndOfGameActions(`${winner == "W"?"White":"Black"} + Wins!`);
 }
 
 function setupPromotionSelector(promotion_selector){
 	const promotion_pieces = ["♛", "♞", "♜", "♝"];
-	for(let index = 0; index < promotion_pieces.length; index++){
-		let selector_element = document.createElement("div");
-		selector_element.innerText = promotion_pieces[index];
-		selector_element.className = (index == 0? "promotion_select": "promotion_square") + " white_piece"
-		promotion_selector.append(selector_element);
-	}
+	promotion_pieces.forEach(createPromotionSelectorSquare)
 	promotion_selector.addEventListener("click", ({target}) => {
-	  let piece = target.innerText;
-		if (piece == undefined || piece == promotion_piece){
-			return;
-		}
-		let new_select = filterForInnerText(document.querySelectorAll('.promotion_square'),piece);
-		let old_select = document.querySelector('.promotion_select');
-		console.log(new_select);
-		console.log(old_select);
-		old_select.className = "promotion_square" + old_select.className.substr(16);
-		new_select.className = "promotion_select" + new_select.className.substr(16);
+		let piece = target.innerText;
+		if (piece == undefined || piece == promotion_piece){return;}
+		let new_select = Array.of(document.querySelectorAll('.promotion_square')).find(piece);
+		let old_select = getElement("promotion_select");
+		old_select.className = "promotion_square" + old_select.className.substring(16);
+		new_select.className = "promotion_select" + new_select.className.substring(16);
 		promotion_piece = piece;
 	});
-}
-
-function filterForInnerText(element_array, text_to_search_for){
-	for(let i = 0; i < element_array.length; i++){
-		if(element_array[i].innerText == text_to_search_for){
-			return element_array[i];
-		}
-	}
-	return null;
 }
 
 function setupReceiveEvent(board, websocket){
@@ -190,18 +133,14 @@ function setupReceiveEvent(board, websocket){
 				color = ev.color;
 				createBoard(board);
 				if (ev.join != undefined){
-					let b = document.querySelector(".body");
-					let join_div = newDiv("join_div");
-					let join_link = create_a_element("join_link",`/CRONChess/?do=jvp&join=${ev.join}`,"Join link")
-					join_div.append(join_link);
-					b.append(join_div);
+					let b = getElement("body");
+					let join_link = createAElement("join_link","join_div",`/CRONChess/?do=jvp&join=${ev.join}`,"Join link");
+					b.append(join_link);
 				}
 				if (ev.watch != undefined){
-					let b = document.querySelector(".body");
-					let watch_div = newDiv("join_div");
-					let watch_link = create_a_element("join_link",`/CRONChess/?do=watch&watch=${ev.watch}`,"Watch link")
-					watch_div.append(watch_link);
-					b.append(watch_div);
+					let b = getElement("body");
+					let watch_link = createAElement("join_link","join_div",`/CRONChess/?do=watch&watch=${ev.watch}`,"Watch link");
+					b.append(watch_link);
 				}
 				break;
 			case "error":
@@ -209,7 +148,7 @@ function setupReceiveEvent(board, websocket){
 				websocket.close(1000);
 				break;
 			case "stalemate":
-				onStalemate();
+				onStalemate(websocket);
 				break;
 				
 		}
@@ -217,60 +156,53 @@ function setupReceiveEvent(board, websocket){
 }
 
 function displayMove(move){
-	let display_elem = document.querySelector(".moves_display");
+	let display_elem = getElement("moves_display");
 	let move_display = document.createElement("div");
 	move_display.innerText = move;
+	move_display.className = "move_display_square black black_move";
 	if(move_number % 2 == 0){
-		let number_display = newDiv("move_number_square");
+		let number_display = createDiv("move_number_square");
 		number_display.innerText = (move_number/2) + 1;
 		display_elem.append(number_display);
 		move_display.className = "move_display_square white";
-		display_elem.append(move_display);
-	}else{
-		move_display.className = "move_display_square black black_move";
-		display_elem.append(move_display);
 	}
+	display_elem.append(move_display);
 	move_number++;
 }
 
 function makeMoveReadable(move){
 	const move_x = indexColumn(boardCoordinatesToIndex(move.at(1)));
 	const move_y = indexRow(boardCoordinatesToIndex(move.at(1))+1);
-	const piece = document.querySelector('[data-index="'+move.at(0)+'"]').innerText;
+	const piece = getTile(move.at(0)).innerText;
 	return `${piece}${"abcdefgh".at(move_x)}${move_y}`
 }
 
-function playMove(board, move){
+function playMove(move){
 	const start_coord = move.at(0);
 	const end_coord = move.at(1);
 	displayMove(makeMoveReadable(move));
+	swapTiles(start_coord, end_coord);
+	let rook_coord = 0;
+	let rook_move_coord=0;
 	switch (move.at(2)){
 		case "_":
-			swapTiles(start_coord, end_coord);
 			break;
 		case "e":
-			swapTiles(start_coord, end_coord);
 			clearTile(indexToBoardCoordinates(boardCoordinatesToIndex(start_coord) + 1));
 			break;
 		case "E":
-			swapTiles(start_coord, end_coord);
 			clearTile(indexToBoardCoordinates(boardCoordinatesToIndex(start_coord) - 1));
 			break;
 		case "c":
-			let right_rook_coord = indexToBoardCoordinates(boardCoordinatesToIndex(start_coord) + 3);
-			let right_rook_move_coord = indexToBoardCoordinates(boardCoordinatesToIndex(start_coord) + 1);
-			swapTiles(start_coord, end_coord);
-			swapTiles(right_rook_coord, right_rook_move_coord);
-			break;
+			rook_coord = indexToBoardCoordinates(boardCoordinatesToIndex(start_coord) + 3);
+			rook_move_coord = indexToBoardCoordinates(boardCoordinatesToIndex(start_coord) + 1);
 		case "C":
-			let left_rook_coord = indexToBoardCoordinates(boardCoordinatesToIndex(start_coord) - 4);
-			let left_rook_move_coord = indexToBoardCoordinates(boardCoordinatesToIndex(start_coord) - 1);
-			swapTiles(start_coord, end_coord);
-			swapTiles(left_rook_coord, left_rook_move_coord);
+			rook_coord = indexToBoardCoordinates(boardCoordinatesToIndex(start_coord) - 4);
+			rook_move_coord = indexToBoardCoordinates(boardCoordinatesToIndex(start_coord) - 1);
+			swapTiles(rook_coord, rook_move_coord);
 			break;
 		default:
-			swapTiles(start_coord, end_coord);
-			let end_tile = document.querySelector('[data-index="'+end_coord+'"]');
+			let end_tile = getTile(end_coord);
 			end_tile.innerText = promotion_piece;
 			break;
 	}
@@ -279,63 +211,45 @@ function playMove(board, move){
 function clearTile(tile_coord){
 	let tile = document.querySelector('[data-index="'+tile_coord+'"]');
 	tile.innerHTML = "";
-	tile.className = tile.className.substr(0,10);
+	tile.className = tile.className.substring(0,10);
 }
 
+
+
 function swapTiles(start_coord, end_coord){
-	let start_tile = document.querySelector('[data-index="'+start_coord+'"]');
-	let end_tile = document.querySelector('[data-index="'+end_coord+'"]');
-	end_tile.className = end_tile.className.substr(0,10) + pieceColorAtCoordinate(start_coord);
-	start_tile.className = start_tile.className.substr(0,10);
+	let start_tile = getTile(start_coord);
+	let end_tile = getTile(end_coord);
+	end_tile.className = end_tile.className.substring(0,10) + pieceColorAtCoordinate(start_coord);
+	start_tile.className = start_tile.className.substring(0,10);
 	end_tile.innerText = start_tile.innerText;
 	start_tile.innerText = "";
 }
 
 function pieceColorAtCoordinate(coordinate){
-	let index_class = document.querySelector('[data-index="'+coordinate+'"]').className;
+	let index_class = getTile(coordinate).className;
 	if (index_class.length > 10){
-		return index_class.substr(10);
+		return index_class.substring(10);
 	}
 	return "";
 }
 
 function createBoard(board){
 	let tile_list = [];
-	let tileColorFlip = false;
+	let tileColorFlip = true;
 	for (let index = 0; index < 64; index++){
-		let cname = ""
-    const tileElement = document.createElement("div");
 		if (index % 8 == 0){
-			tile_list.push([]) ;
-			if (tileColorFlip){
-				tileColorFlip = false
-			}else{
-				tileColorFlip = true;
-			}
+			tile_list.push([]);
+			tileColorFlip = !tileColorFlip;
 		}
-		if (tileColorFlip){
-			if (index % 2 == 0){
-				cname = "white tile";
-			}
-			else{
-				cname = "black tile";
-			}
-		}else{
-			if (index % 2 == 1){
-				cname = "white tile";
-			}
-			else{
-				cname = "black tile";
-			}
-		}
+		let cname = index % 2 == Number(tileColorFlip)?"white tile":"black tile";
+    	const tileElement = document.createElement("div");
 		tileElement.innerText = getPieceAtIndex(index, cname, tileElement);
-    tileElement.dataset.index = indexToBoardCoordinates(index);
+    	tileElement.dataset.index = indexToBoardCoordinates(index);
 		tile_list[tile_list.length - 1].push(tileElement);
-  }
-	if (color == "W"){
-		tile_list = tile_list.reverse();
-	}
-	tile_list.forEach(function(list){list.forEach(function(tile){board.append(tile)})})
+    }
+	if (color == "W"){tile_list = tile_list.reverse();}
+	tile_list = tile_list.flat()
+	tile_list.forEach((elem) => board.append(elem))
 }
 
 function getPieceAtIndex(index, cname, tileElement){
