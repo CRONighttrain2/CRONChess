@@ -109,12 +109,16 @@ function setupPromotionSelector(promotion_selector){
 		promotion_selector.append(selector_element);
 	}
 	promotion_selector.addEventListener("click", ({target}) => {
-		let piece = target.innerText;
-		if (piece == undefined || piece == promotion_piece){return;}
-		let new_select = Array.of(document.querySelectorAll('.promotion_square')).find(piece);
-		let old_select = getElement("promotion_select");
-		old_select.className = "promotion_square" + old_select.className.substring(16);
-		new_select.className = "promotion_select" + new_select.className.substring(16);
+	  let piece = target.innerText;
+		if (piece == undefined || piece == promotion_piece){
+			return;
+		}
+		let new_select = filterForInnerText(document.querySelectorAll('.promotion_square'),piece);
+		let old_select = document.querySelector('.promotion_select');
+		console.log(new_select);
+		console.log(old_select);
+		old_select.className = "promotion_square" + old_select.className.substr(16);
+		new_select.className = "promotion_select" + new_select.className.substr(16);
 		promotion_piece = piece;
 	});
 }
