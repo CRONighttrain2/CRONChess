@@ -12,7 +12,7 @@ const indexColumn = (index) =>{return index % 8;}
 const indexRow = (index) => {return Math.floor(index/8);}
 const createPromotionSelectorSquare = (piece) =>{
 		let selector_element = createDiv("promotion_square" + (color == "W"?" white_piece":" black_piece"));
-		selector_element.innerText = promotion_pieces[piece];
+		selector_element.innerText = piece;
 		promotion_selector.append(selector_element);
 }
 const createDiv = (className)=>{
